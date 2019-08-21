@@ -4,6 +4,6 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import Main from "./Main";
+import { Grid } from "./Grid/Grid";
 
-ReactDOM.render(<Main />, document.getElementById("root"));
+ReactDOM.render(<Grid />, document.getElementById("root"));
