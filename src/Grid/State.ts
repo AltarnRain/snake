@@ -26,4 +26,14 @@ export interface State {
      * The coordinates of the fruit.
      */
     fruitCoordinates: GridCoordinates;
+
+    /**
+     * The length of the snake
+     */
+    snakeLength: number;
+
+    /**
+     * True when the game is lost
+     */
+    gameLost: boolean;
 }

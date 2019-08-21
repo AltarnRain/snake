@@ -2,10 +2,9 @@
  * The grid component.
  */
 
-import React, { ReactNode } from "react";
-import { PlayerStartPosition } from "../Constants";
-import { getInitialGrid, getNextCoordinate, getRandomGridCoordinates, keyCodeToDirection } from "../Lib/Lib";
-import { GridCoordinates } from "../Models";
+import React from "react";
+import { PlayerStartPosition, GridColumns, GridRows } from "../Constants";
+import { getInitialGrid, getNextCoordinate, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
 import { Row } from "../Row/Row";
 import { Properties } from "./Properties";
 import { State } from "./State";
@@ -30,6 +29,8 @@ export class Grid extends React.Component<Properties, State> {
             playerCoordinates: PlayerStartPosition,
             fruitCoordinates,
             direction: "up",
+            snakeLength: 1,
+            gameLost: false
         };
 
         this.onKeyUp = this.onKeyUp.bind(this);
@@ -37,39 +38,55 @@ export class Grid extends React.Component<Properties, State> {
 
         this.state.gridActors[PlayerStartPosition.x][PlayerStartPosition.y] = "player";
         this.state.gridActors[fruitCoordinates.x][fruitCoordinates.y] = "fruit";
-
     }
 
+    /**
+     * Called after the component mounts
+     */
     public componentDidMount(): void {
         document.addEventListener("keyup", this.onKeyUp);
 
-        this.gameTickTimer = window.setInterval(this.gameTick, 500);
+        this.gameTickTimer = window.setInterval(this.gameTick, 100);
     }
 
+    /**
+     * Called just before the component unmounts
+     */
     public componentWillUnmount(): void {
         document.removeEventListener("keyup", this.onKeyUp);
 
         window.clearInterval(this.gameTickTimer);
     }
 
+    /**
+     * Main game loop
+     */
     private gameTick(): void {
-        const coordinates = getNextCoordinate(this.state.playerCoordinates, this.state.direction);
-        this.setPlayerCoordinatesInState(coordinates);
+        const gridActors = [...this.state.gridActors];
+        gridActors[this.state.playerCoordinates.x][this.state.playerCoordinates.y] = "background";
+
+        const playerCoordinates = getNextCoordinate(this.state.playerCoordinates, this.state.direction);
+
+        if (playerCoordinates.x < 0 ||
+            playerCoordinates.x >= GridColumns ||
+            playerCoordinates.y < 0 ||
+            playerCoordinates.y >= GridRows) {
+                 this.setState({gameLost: true});
+                 return;
+             }
+
+        gridActors[playerCoordinates.x][playerCoordinates.y] = "player";
+
+        this.setState({ gridActors, playerCoordinates });
     }
 
     private onKeyUp(e: KeyboardEvent): void {
         if (e) {
             const direction = keyCodeToDirection(e.keyCode);
-            this.setState({direction});
+            if (validNewDirection(direction, this.state.direction)) {
+                this.setState({direction});
+            }
         }
-    }
-
-    private setPlayerCoordinatesInState(playerCoordinates: GridCoordinates): void {
-        const gridActors = [...this.state.gridActors];
-        gridActors[this.state.playerCoordinates.x][this.state.playerCoordinates.y] = "background";
-        gridActors[playerCoordinates.x][playerCoordinates.y] = "player";
-
-        this.setState({ gridActors, playerCoordinates });
     }
 
     /**
@@ -78,9 +95,10 @@ export class Grid extends React.Component<Properties, State> {
      */
     public render(): React.ReactNode {
         return (
-
             <>
                 {
+                    this.state.gameLost ? <div>You lost the game</div>
+                    :
                     this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
                 }
             </>

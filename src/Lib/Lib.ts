@@ -87,3 +87,30 @@ export function getNextCoordinate(coordinate: GridCoordinates, direction: Direct
 
     return newCoordinates;
 }
+
+/**
+ * Returns true if the new direction is valid
+ * @param {Directions} currentDirection. The current direction.
+ * @param {Directions} newDirection. The new direciotn.
+ */
+export function validNewDirection(currentDirection: Directions, newDirection: Directions): boolean {
+    return getOppositeDirection(currentDirection) !== newDirection;
+}
+
+/**
+ * Returns the oposite direction.
+ * @param {Directions} direction. A direction.
+ * @returns {Directions}. The oposite direction.
+ */
+function getOppositeDirection(direction: Directions): Directions {
+    switch (direction) {
+        case "up":
+            return "down";
+        case "down":
+            return "up";
+        case "left":
+            return "right";
+        case "right":
+            return "left";
+    }
+}
