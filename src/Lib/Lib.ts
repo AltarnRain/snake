@@ -1,6 +1,10 @@
+/**
+ * Lib. Lots of helper functions.
+ */
+
 import { GridColumns, GridRows } from "../Constants";
 import { GridCoordinates } from "../Models";
-import { Actors } from "../Types";
+import { Actors, Directions } from "../Types";
 
 /**
  * Creates the initial game grid.
@@ -17,14 +21,6 @@ export function getInitialGrid(): Actors[][] {
 
         grid.push(rowActors);
     }
-
-    const middleX = Math.floor(GridRows / 2);
-    const middleY = Math.floor(GridColumns / 2);
-
-    grid[middleX][middleY] = "player";
-
-    const randomCoordinates = getRandomGridCoordinates();
-    grid[randomCoordinates.x][randomCoordinates.y] = "fruit";
 
     return grid;
 }
@@ -51,4 +47,43 @@ export function getRandomGridCoordinates(): GridCoordinates {
         x,
         y
     };
+}
+
+/**
+ * Returns the direction for left, up, right, down.
+ * @param {number} keyCode.
+ */
+export function keyCodeToDirection(keyCode: number): Directions {
+    switch (keyCode) {
+        case 37:
+            return "left";
+        case 38:
+            return "up";
+        case 39:
+            return "right";
+        case 40:
+            return "down";
+    }
+}
+
+export function getNextCoordinate(coordinate: GridCoordinates, direction: Directions): GridCoordinates {
+
+    const newCoordinates = { ...coordinate };
+
+    switch (direction) {
+        case "left":
+            newCoordinates.x--;
+            break;
+        case "up":
+            newCoordinates.y--;
+            break;
+        case "right":
+            newCoordinates.x++;
+            break;
+        case "down":
+            newCoordinates.y++;
+            break;
+    }
+
+    return newCoordinates;
 }

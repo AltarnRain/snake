@@ -4,7 +4,7 @@
 
 import "jest";
 import { GridColumns, GridRows } from "../Constants";
-import { getActorColor, getRandomGridCoordinates, getInitialGrid } from "../Lib/Lib";
+import { getActorColor, getRandomGridCoordinates } from "../Lib/Lib";
 
 describe("Test lib functions", () => {
     it("retuns the expected color for an Actor", () => {
@@ -24,23 +24,5 @@ describe("Test lib functions", () => {
         expect(coordinates.y).toBeGreaterThanOrEqual(-1);
         expect(coordinates.x).toBeLessThanOrEqual(GridRows);
         expect(coordinates.y).toBeLessThanOrEqual(GridColumns);
-    });
-
-    it("initializes the gamegrid", () => {
-        const grid = getInitialGrid();
-
-        let hasPlayer = false;
-        let hasFruit = false;
-
-        grid.forEach((row) => row.forEach((cell) => {
-            if (cell === "player" && !hasPlayer) {
-                hasPlayer = true;
-            } else if (cell === "fruit" && !hasFruit) {
-                hasFruit = true;
-            }
-        }));
-
-        expect(hasPlayer).toBe(true);
-        expect(hasFruit).toBe(true);
     });
 });
