@@ -40,8 +40,8 @@ export function getActorColor(actor: Actors): string {
  * Returns a random position on the grid.
  */
 export function getRandomGridCoordinates(): GridCoordinates {
-    const x = Math.ceil(Math.random() * GridRows);
-    const y = Math.ceil(Math.random() * GridColumns);
+    const x = Math.ceil(Math.random() * (GridRows - 1));
+    const y = Math.ceil(Math.random() * (GridColumns - 1));
 
     return {
         x,

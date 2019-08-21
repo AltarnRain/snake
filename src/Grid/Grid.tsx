@@ -66,25 +66,35 @@ export class Grid extends React.Component<Properties, State> {
         gridActors[this.state.playerCoordinates.x][this.state.playerCoordinates.y] = "background";
 
         const playerCoordinates = getNextCoordinate(this.state.playerCoordinates, this.state.direction);
+        let fruitCoordinates = this.state.fruitCoordinates;
+        let snakeLength = this.state.snakeLength;
 
         if (playerCoordinates.x < 0 ||
             playerCoordinates.x >= GridColumns ||
             playerCoordinates.y < 0 ||
             playerCoordinates.y >= GridRows) {
-                 this.setState({gameLost: true});
-                 return;
-             }
+            this.setState({ gameLost: true });
+            return;
+        }
+
+        const newPlayerLocation = gridActors[playerCoordinates.x][playerCoordinates.y];
+        if (newPlayerLocation === "fruit") {
+            snakeLength++;
+
+            fruitCoordinates = getRandomGridCoordinates();
+            gridActors[fruitCoordinates.x][fruitCoordinates.y] = "fruit";
+        }
 
         gridActors[playerCoordinates.x][playerCoordinates.y] = "player";
 
-        this.setState({ gridActors, playerCoordinates });
+        this.setState({ gridActors, playerCoordinates, snakeLength });
     }
 
     private onKeyUp(e: KeyboardEvent): void {
         if (e) {
             const direction = keyCodeToDirection(e.keyCode);
             if (validNewDirection(direction, this.state.direction)) {
-                this.setState({direction});
+                this.setState({ direction });
             }
         }
     }
@@ -98,8 +108,8 @@ export class Grid extends React.Component<Properties, State> {
             <>
                 {
                     this.state.gameLost ? <div>You lost the game</div>
-                    :
-                    this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
+                        :
+                        this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
                 }
             </>
         );
