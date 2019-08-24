@@ -9,6 +9,7 @@ import { GridCoordinates } from "../Models";
 import { Row } from "../Row/Row";
 import { Directions } from "../Types";
 import { State } from "./State";
+import { StartingSnakeLength } from "../Constants"
 
 export class Grid extends React.Component<{}, State> {
 
@@ -44,7 +45,7 @@ export class Grid extends React.Component<{}, State> {
 
         this.state = {
             gridActors,
-            snakeLength: 1,
+            snakeLength: StartingSnakeLength,
             gameLost: false,
         };
 
@@ -62,7 +63,7 @@ export class Grid extends React.Component<{}, State> {
     public componentDidMount(): void {
         document.addEventListener("keyup", this.onKeyUp);
 
-        // this.gameTickTimer = window.setInterval(this.gameTick, 200);
+        this.gameTickTimer = window.setInterval(this.gameTick, 200);
     }
 
     /**
@@ -71,7 +72,7 @@ export class Grid extends React.Component<{}, State> {
     public componentWillUnmount(): void {
         document.removeEventListener("keyup", this.onKeyUp);
 
-        // window.clearInterval(this.gameTickTimer);
+        window.clearInterval(this.gameTickTimer);
     }
 
     /**
@@ -131,7 +132,6 @@ export class Grid extends React.Component<{}, State> {
             const direction = keyCodeToDirection(e.keyCode);
             if (validNewDirection(direction, this.direction)) {
                 this.direction = direction;
-                this.gameTick();
             }
         }
     }
@@ -144,8 +144,13 @@ export class Grid extends React.Component<{}, State> {
         return (
             <>
                 {
-                    this.state.gameLost ? <div>{this.state.gameLostMessage}</div>
-                        :
+                    this.state.gameLost ?
+                    <>
+                        <p>{this.state.gameLostMessage}</p>
+                        <p>The length of the snake was: {this.state.snakeLength.toString()}</p>
+                    </>
+                             :
+
                         this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
                 }
             </>
