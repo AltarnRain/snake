@@ -17,4 +17,9 @@ export const GridColumns = 51;
 /**
  * Player start position.
  */
-export const PlayerStartPositions: GridCoordinates[] = [{ x: 25, y: 25 }, { x: 25, y: 26 }, { x: 25, y: 27 }];
+export const PlayerStartPosition: GridCoordinates = { x: 25, y: 25 };
+
+/**
+ * The length of the snake at the start of the game.
+ */
+export const StartingSnakeLength = 8;

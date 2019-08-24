@@ -3,15 +3,14 @@
  */
 
 import React from "react";
-import { GridColumns, GridRows, PlayerStartPositions } from "../Constants";
-import { getInitialGrid, getNextCoordinate, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
+import { GridColumns, GridRows } from "../Constants";
+import { getInitialGrid, getNextCoordinate, getPlayerStartPositions, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
 import { GridCoordinates } from "../Models";
 import { Row } from "../Row/Row";
 import { Directions } from "../Types";
-import { Properties } from "./Properties";
 import { State } from "./State";
 
-export class Grid extends React.Component<Properties, State> {
+export class Grid extends React.Component<{}, State> {
 
     /**
      * Reference number to the interval.
@@ -21,12 +20,12 @@ export class Grid extends React.Component<Properties, State> {
     /**
      * The direction the player is traveling in.
      */
-    private direction: Directions;
+    private direction: Directions = "up";
 
     /**
      * The current player coordinates
      */
-    private playerCoordinates: GridCoordinates[] = PlayerStartPositions;
+    private playerCoordinates: GridCoordinates[] = getPlayerStartPositions();
 
     /**
      * The coordinates of the fruit.
@@ -36,13 +35,17 @@ export class Grid extends React.Component<Properties, State> {
     /**
      * Constructs the component.
      */
-    constructor(props: Properties) {
+    constructor(props: object) {
         super(props);
 
+        const gridActors = getInitialGrid();
+        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "player");
+        gridActors[this.fruitCoordinates.x][this.fruitCoordinates.y] = "fruit";
+
         this.state = {
-            gridActors: getInitialGrid(),
+            gridActors,
             snakeLength: 1,
-            gameLost: false
+            gameLost: false,
         };
 
         this.onKeyUp = this.onKeyUp.bind(this);
@@ -59,11 +62,7 @@ export class Grid extends React.Component<Properties, State> {
     public componentDidMount(): void {
         document.addEventListener("keyup", this.onKeyUp);
 
-        const gridActors = [...this.state.gridActors];
-        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "player");
-        this.setState({gridActors});
-
-        // this.gameTickTimer = window.setInterval(this.gameTick, 100);
+        // this.gameTickTimer = window.setInterval(this.gameTick, 200);
     }
 
     /**
@@ -79,6 +78,11 @@ export class Grid extends React.Component<Properties, State> {
      * Main game loop
      */
     private gameTick(): void {
+
+        if (this.state.gameLost) {
+            return;
+        }
+
         const gridActors = [...this.state.gridActors];
         this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "background");
 
@@ -88,8 +92,13 @@ export class Grid extends React.Component<Properties, State> {
             newPlayerCoordinate.x >= GridColumns ||
             newPlayerCoordinate.y < 0 ||
             newPlayerCoordinate.y >= GridRows) {
-            this.setState({ gameLost: true });
+            this.setState({ gameLost: true, gameLostMessage: "You went outside the play field." });
             return;
+        }
+
+        const hitTail = this.playerCoordinates.some((coords) => coords.x === newPlayerCoordinate.x && coords.y === newPlayerCoordinate.y);
+        if (hitTail) {
+            this.setState({ gameLost: true, gameLostMessage: "You hit your tail." });
         }
 
         let snakeLength = this.state.snakeLength;
@@ -121,6 +130,7 @@ export class Grid extends React.Component<Properties, State> {
         if (e) {
             const direction = keyCodeToDirection(e.keyCode);
             if (validNewDirection(direction, this.direction)) {
+                this.direction = direction;
                 this.gameTick();
             }
         }
@@ -134,7 +144,7 @@ export class Grid extends React.Component<Properties, State> {
         return (
             <>
                 {
-                    this.state.gameLost ? <div>You lost the game</div>
+                    this.state.gameLost ? <div>{this.state.gameLostMessage}</div>
                         :
                         this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
                 }

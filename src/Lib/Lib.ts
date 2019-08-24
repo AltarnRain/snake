@@ -2,7 +2,7 @@
  * Lib. Lots of helper functions.
  */
 
-import { GridColumns, GridRows } from "../Constants";
+import { GridColumns, GridRows, StartingSnakeLength, PlayerStartPosition } from "../Constants";
 import { GridCoordinates } from "../Models";
 import { Actors, Directions } from "../Types";
 
@@ -47,6 +47,17 @@ export function getRandomGridCoordinates(): GridCoordinates {
         x,
         y
     };
+}
+
+export function getPlayerStartPositions(): GridCoordinates[] {
+    const playerStartPositions: GridCoordinates[] = [PlayerStartPosition];
+    for (let i = 1; i < StartingSnakeLength; i++) {
+        const lastPosition = {...playerStartPositions[i - 1]};
+        lastPosition.y++;
+        playerStartPositions.push(lastPosition);
+    }
+
+    return playerStartPositions;
 }
 
 /**

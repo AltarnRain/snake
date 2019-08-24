@@ -20,4 +20,9 @@ export interface State {
      * True when the game is lost
      */
     gameLost: boolean;
+
+    /**
+     * The reason the player lost the game.
+     */
+    gameLostMessage?: string;
 }

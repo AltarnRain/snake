@@ -21,9 +21,6 @@ export const Cell: React.FC<Properties> = (props) => {
         left: props.row * width,
         top: props.column * height,
         position: "absolute",
-        borderWidth: "1px",
-        borderStyle: "solid"
-
     };
 
     /**
