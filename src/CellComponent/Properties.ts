@@ -10,7 +10,13 @@ export interface Properties {
      */
     actor: Actors;
 
+    /**
+     * The row of the cell
+     */
     row: number;
 
+    /**
+     * The column of the cell.
+     */
     column: number;
 }

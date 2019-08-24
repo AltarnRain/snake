@@ -10,5 +10,8 @@ export interface Properties {
      */
     actors: Actors[];
 
+    /**
+     * The row.
+     */
     row: number;
 }

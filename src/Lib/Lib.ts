@@ -25,6 +25,10 @@ export function getInitialGrid(): Actors[][] {
     return grid;
 }
 
+/**
+ * Converts an actor to a color.
+ * @returns {string}. A color
+ */
 export function getActorColor(actor: Actors): string {
     switch (actor) {
         case "background":
@@ -49,6 +53,10 @@ export function getRandomGridCoordinates(): GridCoordinates {
     };
 }
 
+/**
+ * Gets the grid coordinates where the player's body will be based on the initial snake length
+ * @returns {GridCoordinates}. The player's initial grid coordinates.
+ */
 export function getPlayerStartPositions(): GridCoordinates[] {
     const playerStartPositions: GridCoordinates[] = [PlayerStartPosition];
     for (let i = 1; i < StartingSnakeLength; i++) {
@@ -77,6 +85,10 @@ export function keyCodeToDirection(keyCode: number): Directions {
     }
 }
 
+/**
+ * Gets the next coordinate based on the passed direction
+ * @returns {GridCoordinates}. A new grid coordinate
+ */
 export function getNextCoordinate(coordinate: GridCoordinates, direction: Directions): GridCoordinates {
 
     const newCoordinates = { ...coordinate };
