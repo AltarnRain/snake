@@ -17,4 +17,4 @@ export const GridColumns = 51;
 /**
  * Player start position.
  */
-export const PlayerStartPosition: GridCoordinates = { x: 25, y: 25 };
+export const PlayerStartPositions: GridCoordinates[] = [{ x: 25, y: 25 }, { x: 25, y: 26 }, { x: 25, y: 27 }];

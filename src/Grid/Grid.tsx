@@ -3,9 +3,11 @@
  */
 
 import React from "react";
-import { PlayerStartPosition, GridColumns, GridRows } from "../Constants";
+import { GridColumns, GridRows, PlayerStartPositions } from "../Constants";
 import { getInitialGrid, getNextCoordinate, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
+import { GridCoordinates } from "../Models";
 import { Row } from "../Row/Row";
+import { Directions } from "../Types";
 import { Properties } from "./Properties";
 import { State } from "./State";
 
@@ -17,27 +19,38 @@ export class Grid extends React.Component<Properties, State> {
     private gameTickTimer: number | undefined;
 
     /**
+     * The direction the player is traveling in.
+     */
+    private direction: Directions;
+
+    /**
+     * The current player coordinates
+     */
+    private playerCoordinates: GridCoordinates[] = PlayerStartPositions;
+
+    /**
+     * The coordinates of the fruit.
+     */
+    private fruitCoordinates: GridCoordinates = getRandomGridCoordinates();
+
+    /**
      * Constructs the component.
      */
     constructor(props: Properties) {
         super(props);
 
-        const fruitCoordinates = getRandomGridCoordinates();
-
         this.state = {
             gridActors: getInitialGrid(),
-            playerCoordinates: PlayerStartPosition,
-            fruitCoordinates,
-            direction: "up",
             snakeLength: 1,
             gameLost: false
         };
 
         this.onKeyUp = this.onKeyUp.bind(this);
         this.gameTick = this.gameTick.bind(this);
+    }
 
-        this.state.gridActors[PlayerStartPosition.x][PlayerStartPosition.y] = "player";
-        this.state.gridActors[fruitCoordinates.x][fruitCoordinates.y] = "fruit";
+    private setNewFruitPosition(): void {
+        this.fruitCoordinates = getRandomGridCoordinates();
     }
 
     /**
@@ -46,7 +59,11 @@ export class Grid extends React.Component<Properties, State> {
     public componentDidMount(): void {
         document.addEventListener("keyup", this.onKeyUp);
 
-        this.gameTickTimer = window.setInterval(this.gameTick, 100);
+        const gridActors = [...this.state.gridActors];
+        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "player");
+        this.setState({gridActors});
+
+        // this.gameTickTimer = window.setInterval(this.gameTick, 100);
     }
 
     /**
@@ -55,7 +72,7 @@ export class Grid extends React.Component<Properties, State> {
     public componentWillUnmount(): void {
         document.removeEventListener("keyup", this.onKeyUp);
 
-        window.clearInterval(this.gameTickTimer);
+        // window.clearInterval(this.gameTickTimer);
     }
 
     /**
@@ -63,38 +80,48 @@ export class Grid extends React.Component<Properties, State> {
      */
     private gameTick(): void {
         const gridActors = [...this.state.gridActors];
-        gridActors[this.state.playerCoordinates.x][this.state.playerCoordinates.y] = "background";
+        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "background");
 
-        const playerCoordinates = getNextCoordinate(this.state.playerCoordinates, this.state.direction);
-        let fruitCoordinates = this.state.fruitCoordinates;
-        let snakeLength = this.state.snakeLength;
+        const newPlayerCoordinate = getNextCoordinate(this.playerCoordinates[0], this.direction);
 
-        if (playerCoordinates.x < 0 ||
-            playerCoordinates.x >= GridColumns ||
-            playerCoordinates.y < 0 ||
-            playerCoordinates.y >= GridRows) {
+        if (newPlayerCoordinate.x < 0 ||
+            newPlayerCoordinate.x >= GridColumns ||
+            newPlayerCoordinate.y < 0 ||
+            newPlayerCoordinate.y >= GridRows) {
             this.setState({ gameLost: true });
             return;
         }
 
-        const newPlayerLocation = gridActors[playerCoordinates.x][playerCoordinates.y];
-        if (newPlayerLocation === "fruit") {
+        let snakeLength = this.state.snakeLength;
+        if (gridActors[newPlayerCoordinate.x][newPlayerCoordinate.y] === "fruit") {
             snakeLength++;
 
-            fruitCoordinates = getRandomGridCoordinates();
-            gridActors[fruitCoordinates.x][fruitCoordinates.y] = "fruit";
+            gridActors[this.fruitCoordinates.x][this.fruitCoordinates.y] = "background";
+            this.setNewFruitPosition();
+            gridActors[this.fruitCoordinates.x][this.fruitCoordinates.y] = "fruit";
+
+            this.playerCoordinates = [newPlayerCoordinate, ...this.playerCoordinates];
+
+        } else {
+            // Remove last element
+            this.playerCoordinates.pop();
+
+            this.playerCoordinates = [newPlayerCoordinate, ...this.playerCoordinates];
         }
 
-        gridActors[playerCoordinates.x][playerCoordinates.y] = "player";
-
-        this.setState({ gridActors, playerCoordinates, snakeLength });
+        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "player");
+        this.setState({ gridActors, snakeLength });
     }
 
+    /**
+     * Handles a keypress.
+     * @param {KeyboardEvent } e. A keyboard event.
+     */
     private onKeyUp(e: KeyboardEvent): void {
         if (e) {
             const direction = keyCodeToDirection(e.keyCode);
-            if (validNewDirection(direction, this.state.direction)) {
-                this.setState({ direction });
+            if (validNewDirection(direction, this.direction)) {
+                this.gameTick();
             }
         }
     }
