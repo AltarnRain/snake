@@ -4,23 +4,12 @@
 
 import "jest";
 import { GameColumns, GameRows } from "../Constants";
-import { coordinateExistsInSet, getActorColor, getNextCoordinate, getPlayerStartCoordinates, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
+import { coordinateExistsInSet, getNextCoordinate, getPlayerStartCoordinates, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
 import { GameCoordinate } from "../Models";
 import { Directions } from "../Types";
 
 describe("Test lib functions", () => {
-    it("retuns the expected color for an Actor", () => {
-
-        // Act
-        const green = getActorColor("background");
-        const yellow = getActorColor("player");
-        const red = getActorColor("fruit");
-
-        expect(green).toBe("green");
-        expect(yellow).toBe("yellow");
-        expect(red).toBe("red");
-    });
-
+    
     it("returns two numbers within the game grid limit", () => {
         // Act
         const coordinates = getRandomGridCoordinates();

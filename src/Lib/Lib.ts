@@ -9,7 +9,7 @@ import { Directions } from "../Types";
 /**
  * Returns a random position on the grid.
  */
-export function getRandomGridCoordinates(exclude: GameCoordinate[]): GameCoordinate {
+export function getRandomGridCoordinates(exclude?: GameCoordinate[]): GameCoordinate {
 
     while (true) {
         const x = Math.ceil(Math.random() * (GameRows - 1));
@@ -18,7 +18,11 @@ export function getRandomGridCoordinates(exclude: GameCoordinate[]): GameCoordin
         const coordinate: GameCoordinate = { x, y };
 
         // Ensure a fruit is never placed on a player.
-        if (!coordinateExistsInSet(exclude, coordinate)) {
+        if (exclude) {
+            if (!coordinateExistsInSet(exclude, coordinate)) {
+                return coordinate;
+            }
+        } else {
             return coordinate;
         }
     }

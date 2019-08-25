@@ -48,5 +48,5 @@ export const screenXOffset = (window.screen.availWidth / 2) - (CellWidth * Playe
 export const screenYOffset = (window.screen.availHeight / 2) - (CellHeight * PlayerStartCoordinateY);
 
 export const DebugOptions = {
-    manualMovement: true,
+    manualMovement: false,
 };
