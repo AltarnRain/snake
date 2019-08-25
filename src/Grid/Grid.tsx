@@ -3,13 +3,12 @@
  */
 
 import React from "react";
-import { GridColumns, GridRows } from "../Constants";
-import { getInitialGrid, getNextCoordinate, getPlayerStartPositions, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
-import { GridCoordinates } from "../Models";
+import { StartingSnakeLength } from "../Constants";
+import { areCoordinatesOutsideGrid, coordinateExistsInSet, getInitialGrid, getNextCoordinate, getPlayerStartCoordinate, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
+import { GridCoordinate } from "../Models";
 import { Row } from "../Row/Row";
 import { Directions } from "../Types";
 import { State } from "./State";
-import { StartingSnakeLength } from "../Constants"
 
 export class Grid extends React.Component<{}, State> {
 
@@ -26,12 +25,12 @@ export class Grid extends React.Component<{}, State> {
     /**
      * The current player coordinates
      */
-    private playerCoordinates: GridCoordinates[] = getPlayerStartPositions();
+    private playerCoordinates: GridCoordinate[] = getPlayerStartCoordinate();
 
     /**
      * The coordinates of the fruit.
      */
-    private fruitCoordinates: GridCoordinates = getRandomGridCoordinates();
+    private fruitCoordinates: GridCoordinate = getRandomGridCoordinates();
 
     /**
      * Constructs the component.
@@ -80,25 +79,23 @@ export class Grid extends React.Component<{}, State> {
      */
     private gameTick(): void {
 
+        // Stop the game from updating if the player lost the game.
         if (this.state.gameLost) {
             return;
         }
 
         const gridActors = [...this.state.gridActors];
+
         this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "background");
 
         const newPlayerCoordinate = getNextCoordinate(this.playerCoordinates[0], this.direction);
 
-        if (newPlayerCoordinate.x < 0 ||
-            newPlayerCoordinate.x >= GridColumns ||
-            newPlayerCoordinate.y < 0 ||
-            newPlayerCoordinate.y >= GridRows) {
+        if (areCoordinatesOutsideGrid(newPlayerCoordinate)) {
             this.setState({ gameLost: true, gameLostMessage: "You went outside the play field." });
             return;
         }
 
-        const hitTail = this.playerCoordinates.some((coords) => coords.x === newPlayerCoordinate.x && coords.y === newPlayerCoordinate.y);
-        if (hitTail) {
+        if (coordinateExistsInSet(this.playerCoordinates, newPlayerCoordinate)) {
             this.setState({ gameLost: true, gameLostMessage: "You hit your tail." });
         }
 

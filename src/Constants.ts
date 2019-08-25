@@ -1,5 +1,3 @@
-import { GridCoordinates } from "./Models";
-
 /**
  * Constants used in the game.
  */
@@ -15,9 +13,14 @@ export const GridRows = 51;
 export const GridColumns = 51;
 
 /**
- * Player start position.
+ * Player start position on the X axis
  */
-export const PlayerStartPosition: GridCoordinates = { x: 25, y: 25 };
+export const PlayerStartCoordinateX = Math.ceil(GridRows / 2);
+
+/**
+ * Player start position on the Y axis
+ */
+export const PlayerStartCoordinateY = Math.ceil(GridColumns / 2);
 
 /**
  * The length of the snake at the start of the game.

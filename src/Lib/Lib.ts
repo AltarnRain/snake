@@ -2,8 +2,8 @@
  * Lib. Lots of helper functions.
  */
 
-import { GridColumns, GridRows, StartingSnakeLength, PlayerStartPosition } from "../Constants";
-import { GridCoordinates } from "../Models";
+import { GridColumns, GridRows, PlayerStartCoordinateX, PlayerStartCoordinateY, StartingSnakeLength } from "../Constants";
+import { GridCoordinate } from "../Models";
 import { Actors, Directions } from "../Types";
 
 /**
@@ -43,7 +43,7 @@ export function getActorColor(actor: Actors): string {
 /**
  * Returns a random position on the grid.
  */
-export function getRandomGridCoordinates(): GridCoordinates {
+export function getRandomGridCoordinates(): GridCoordinate {
     const x = Math.ceil(Math.random() * (GridRows - 1));
     const y = Math.ceil(Math.random() * (GridColumns - 1));
 
@@ -55,17 +55,17 @@ export function getRandomGridCoordinates(): GridCoordinates {
 
 /**
  * Gets the grid coordinates where the player's body will be based on the initial snake length
- * @returns {GridCoordinates}. The player's initial grid coordinates.
+ * @returns {GridCoordinate}. The player's initial grid coordinates.
  */
-export function getPlayerStartPositions(): GridCoordinates[] {
-    const playerStartPositions: GridCoordinates[] = [PlayerStartPosition];
+export function getPlayerStartCoordinate(): GridCoordinate[] {
+    const playerStartCoordinates: GridCoordinate[] = [ { x: PlayerStartCoordinateX, y: PlayerStartCoordinateY } ];
     for (let i = 1; i < StartingSnakeLength; i++) {
-        const lastPosition = {...playerStartPositions[i - 1]};
-        lastPosition.y++;
-        playerStartPositions.push(lastPosition);
+        const lastCoordinate = {...playerStartCoordinates[i - 1]};
+        lastCoordinate.y++;
+        playerStartCoordinates.push(lastCoordinate);
     }
 
-    return playerStartPositions;
+    return playerStartCoordinates;
 }
 
 /**
@@ -87,28 +87,28 @@ export function keyCodeToDirection(keyCode: number): Directions {
 
 /**
  * Gets the next coordinate based on the passed direction
- * @returns {GridCoordinates}. A new grid coordinate
+ * @returns {GridCoordinate}. A new grid coordinate
  */
-export function getNextCoordinate(coordinate: GridCoordinates, direction: Directions): GridCoordinates {
+export function getNextCoordinate(coordinate: GridCoordinate, direction: Directions): GridCoordinate {
 
-    const newCoordinates = { ...coordinate };
+    const newCoordinate = { ...coordinate };
 
     switch (direction) {
         case "left":
-            newCoordinates.x--;
+            newCoordinate.x--;
             break;
         case "up":
-            newCoordinates.y--;
+            newCoordinate.y--;
             break;
         case "right":
-            newCoordinates.x++;
+            newCoordinate.x++;
             break;
         case "down":
-            newCoordinates.y++;
+            newCoordinate.y++;
             break;
     }
 
-    return newCoordinates;
+    return newCoordinate;
 }
 
 /**
@@ -118,6 +118,27 @@ export function getNextCoordinate(coordinate: GridCoordinates, direction: Direct
  */
 export function validNewDirection(currentDirection: Directions, newDirection: Directions): boolean {
     return getOppositeDirection(currentDirection) !== newDirection;
+}
+
+/**
+ * Returns true of the passed coordinates are outside the bounds of the game grid.
+ * @param {GridCoordinate} coordinates The coordinate to check
+ * @returns {boolean}. True if the coordinats are outside the game grid.
+ */
+export function areCoordinatesOutsideGrid(coordinate: GridCoordinate): boolean {
+    return (coordinate.x < 0 ||
+        coordinate.x >= GridColumns ||
+        coordinate.y < 0 ||
+        coordinate.y >= GridRows);
+}
+
+/**
+ * Checks if coordinates overlap between two arrays of GridCoordinates
+ * @param {GridCoordinate[]} coordinateSet. Set of coordinates.
+ * @param {GridCoordinate} coordinates. The coordinate to check
+ */
+export function coordinateExistsInSet(coordinates: GridCoordinate[], coordinate: GridCoordinate): boolean {
+    return  coordinates.some((coords) => coords.x === coordinate.x && coords.y === coordinate.y);
 }
 
 /**
