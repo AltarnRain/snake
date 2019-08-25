@@ -173,7 +173,7 @@ export class Game extends React.Component<{}, State> {
         };
 
         return (
-            <>
+            <div>
                 {
                     this.state.gameLost ?
                         <>
@@ -196,7 +196,7 @@ export class Game extends React.Component<{}, State> {
                             }
                         </div>
                 }
-            </>
+            </div>
         );
     }
 }
