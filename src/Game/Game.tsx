@@ -6,7 +6,7 @@ import React, { CSSProperties } from "react";
 import { CellWidthAndHeight, DebugOptions, GameColumns, GameRows, screenXOffset, screenYOffset, StartingSnakeLength, TimeTick } from "../Constants";
 import { areCoordinatesOutsideGrid, coordinateExistsInSet, getNextCoordinate, getPlayerStartCoordinates, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
 import { GameCoordinate } from "../Models";
-import { Directions } from "../Types";
+import { Direction } from "../Types";
 import { State } from "./State";
 
 export class Game extends React.Component<{}, State> {
@@ -21,12 +21,12 @@ export class Game extends React.Component<{}, State> {
      * It is set in the GameTick method when the newDirection is valid.
      * It is also used to move the snake when no keypress was pending.
      */
-    private currentDirection: Directions = "up";
+    private currentDirection: Direction = "up";
 
     /**
      * The direction given my player input.
      */
-    private newDirection?: Directions;
+    private newDirection?: Direction;
 
     /**
      * Constructs the component.

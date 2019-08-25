@@ -4,7 +4,7 @@
 
 import { GameColumns, GameRows, PlayerStartCoordinateX, PlayerStartCoordinateY, StartingSnakeLength } from "../Constants";
 import { GameCoordinate } from "../Models";
-import { Directions } from "../Types";
+import { Direction } from "../Types";
 
 /**
  * Returns a random position on the grid.
@@ -47,7 +47,7 @@ export function getPlayerStartCoordinates(): GameCoordinate[] {
  * Returns the direction for left, up, right, down.
  * @param {number} keyCode.
  */
-export function keyCodeToDirection(keyCode: number): Directions {
+export function keyCodeToDirection(keyCode: number): Direction {
     switch (keyCode) {
         case 37:
             return "left";
@@ -64,7 +64,7 @@ export function keyCodeToDirection(keyCode: number): Directions {
  * Gets the next coordinate based on the passed direction
  * @returns {GameCoordinate}. A new grid coordinate
  */
-export function getNextCoordinate(coordinate: GameCoordinate, direction: Directions): GameCoordinate {
+export function getNextCoordinate(coordinate: GameCoordinate, direction: Direction): GameCoordinate {
 
     const newCoordinate = { ...coordinate };
 
@@ -91,7 +91,7 @@ export function getNextCoordinate(coordinate: GameCoordinate, direction: Directi
  * @param {Directions} currentDirection. The current direction.
  * @param {Directions} newDirection. The new direciotn.
  */
-export function validNewDirection(currentDirection: Directions, newDirection: Directions): boolean {
+export function validNewDirection(currentDirection: Direction, newDirection: Direction): boolean {
     return getOppositeDirection(currentDirection) !== newDirection;
 }
 
@@ -121,7 +121,7 @@ export function coordinateExistsInSet(coordinates: GameCoordinate[], coordinate:
  * @param {Directions} direction. A direction.
  * @returns {Directions}. The oposite direction.
  */
-function getOppositeDirection(direction: Directions): Directions {
+function getOppositeDirection(direction: Direction): Direction {
     switch (direction) {
         case "up":
             return "down";
