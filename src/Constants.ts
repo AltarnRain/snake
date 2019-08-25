@@ -5,12 +5,12 @@
 /**
  * Number of rows in the game grid
  */
-export const GameRows = 51;
+export const GameRows = 31;
 
 /**
  * Number of columns in the game grid.
  */
-export const GameColumns = 51;
+export const GameColumns = 31;
 
 /**
  * Player start position on the X axis
@@ -25,27 +25,32 @@ export const PlayerStartCoordinateY = Math.ceil(GameColumns / 2);
 /**
  * The length of the snake at the start of the game.
  */
-export const StartingSnakeLength = 3;
+export const StartingSnakeLength = 5;
+
+/**
+ * A constant value to calculate the best fitting CellWidth and Height.
+ */
+export const ResizeFactor = 0.027;
 
 /**
  * Cell width.
  */
-export const CellWidth  = 15;
-
-/**
- * Cell height
- */
-export const CellHeight = 15;
+export const CellWidthAndHeight = window.screen.height * ResizeFactor;
 
 /**
  * Offset where to position cells on the X axis.
  */
-export const screenXOffset = (window.innerWidth / 2) - (CellWidth * PlayerStartCoordinateX);
+export const screenXOffset = (window.innerWidth / 2) - (CellWidthAndHeight * PlayerStartCoordinateX);
 
 /**
  * Offset where to postion cells on the Y axis.
  */
-export const screenYOffset = (window.innerHeight / 2) - (CellHeight * PlayerStartCoordinateY);
+export const screenYOffset = (window.innerHeight / 2) - (CellWidthAndHeight * PlayerStartCoordinateY);
+
+/**
+ * The number of milisecond between gameticks
+ */
+export const TimeTick = 100;
 
 export const DebugOptions = {
     manualMovement: false,

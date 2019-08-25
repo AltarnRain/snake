@@ -3,7 +3,7 @@
  */
 
 import React, { CSSProperties } from "react";
-import { CellHeight, CellWidth, DebugOptions, GameColumns, GameRows, StartingSnakeLength, screenXOffset, screenYOffset } from "../Constants";
+import { CellWidthAndHeight, DebugOptions, GameColumns, GameRows, screenXOffset, screenYOffset, StartingSnakeLength, TimeTick } from "../Constants";
 import { areCoordinatesOutsideGrid, coordinateExistsInSet, getNextCoordinate, getPlayerStartCoordinates, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
 import { GameCoordinate } from "../Models";
 import { Directions } from "../Types";
@@ -34,18 +34,23 @@ export class Game extends React.Component<{}, State> {
     constructor(props: object) {
         super(props);
 
+        this.state = this.getInitialState();
+
+        this.onKeyUp = this.onKeyUp.bind(this);
+        this.gameTick = this.gameTick.bind(this);
+        this.playAgain = this.playAgain.bind(this);
+    }
+
+    private getInitialState(): State {
         const playerCoordinates = getPlayerStartCoordinates();
         const fruitCoordinate = getRandomGridCoordinates(playerCoordinates);
 
-        this.state = {
+        return {
             playerCoordinates,
             fruitCoordinate,
             snakeLength: StartingSnakeLength,
             gameLost: false,
         };
-
-        this.onKeyUp = this.onKeyUp.bind(this);
-        this.gameTick = this.gameTick.bind(this);
     }
 
     /**
@@ -55,7 +60,7 @@ export class Game extends React.Component<{}, State> {
         document.addEventListener("keyup", this.onKeyUp);
 
         if (!DebugOptions.manualMovement) {
-            this.gameTickTimer = window.setInterval(this.gameTick, 150);
+            this.gameTickTimer = window.setInterval(this.gameTick, TimeTick);
         }
     }
 
@@ -136,8 +141,14 @@ export class Game extends React.Component<{}, State> {
             if (DebugOptions.manualMovement) {
                 this.gameTick();
             }
-
         }
+    }
+
+    /**
+     * Stars a new game
+     */
+    private playAgain(): void {
+        this.setState(this.getInitialState());
     }
 
     /**
@@ -146,56 +157,64 @@ export class Game extends React.Component<{}, State> {
      */
     public render(): React.ReactNode {
 
+        const blockStyle: CSSProperties = {
+            position: "absolute",
+            height: `${CellWidthAndHeight}px`,
+            width: `${CellWidthAndHeight}px`,
+        };
+
         const gameFieldStyle: CSSProperties = {
             position: "absolute",
+            height: `${CellWidthAndHeight * GameColumns}px`,
+            width: `${CellWidthAndHeight * GameRows}px`,
             backgroundColor: "green",
             left: screenXOffset,
             top: screenYOffset,
-            height: `${CellWidth * GameColumns}px`,
-            width: `${CellHeight * GameRows}px`,
         };
 
         const fruitStyle: CSSProperties = {
-            position: "absolute",
+            ...blockStyle,
             backgroundColor: "red",
-            width: `${CellWidth}px`,
-            height: `${CellHeight}px`,
-            left: this.state.fruitCoordinate.x * CellWidth,
-            top: this.state.fruitCoordinate.y * CellHeight,
+            left: this.state.fruitCoordinate.x * CellWidthAndHeight,
+            top: this.state.fruitCoordinate.y * CellWidthAndHeight,
             borderRadius: "50%"
         };
 
         const snakeStyle: CSSProperties = {
+            ...blockStyle,
+            backgroundColor: this.state.gameLost ? "brown" : "yellow",
+        };
+
+        const scoreStype: CSSProperties = {
             position: "absolute",
-            backgroundColor: "yellow",
-            width: `${CellWidth}px`,
-            height: `${CellHeight}px`,
+            color: "white",
+            top: screenYOffset,
+            left: screenXOffset - 100
         };
 
         return (
             <div>
+                <p style={scoreStype}>Length: {this.state.snakeLength}</p>
+                <p style={{ ...scoreStype, top: screenYOffset + 30 }}>Fruits: {this.state.snakeLength - StartingSnakeLength}</p>
                 {
                     this.state.gameLost ?
-                        <>
-                            <p>{this.state.gameLostMessage}</p>
-                            <p>The length of the snake was: {this.state.snakeLength.toString()}</p>
-                        </>
-                        :
-                        <div style={gameFieldStyle}>
-                            <div style={fruitStyle} />
-                            {
-                                this.state.playerCoordinates.map((coordinate, key) =>
-                                    <div key={key} style={
-                                        {
-                                            ...snakeStyle,
-                                            left: coordinate.x * CellWidth,
-                                            top: coordinate.y * CellHeight,
-                                        }
-                                    } />
-                                )
-                            }
-                        </div>
+                        <button style={{ position: "absolute", top: screenYOffset + 70, left: screenXOffset - 100 }} onClick={this.playAgain}>Play again?</button>
+                        : null
                 }
+                <div style={gameFieldStyle}>
+                    <div style={fruitStyle} />
+                    {
+                        this.state.playerCoordinates.map((coordinate, key) =>
+                            <div key={key} style={
+                                {
+                                    ...snakeStyle,
+                                    left: coordinate.x * CellWidthAndHeight,
+                                    top: coordinate.y * CellWidthAndHeight,
+                                }
+                            } />
+                        )
+                    }
+                </div>
             </div>
         );
     }
