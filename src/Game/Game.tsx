@@ -3,7 +3,7 @@
  */
 
 import React, { CSSProperties } from "react";
-import { CellHeight, CellWidth, DebugOptions, GameColumns, GameRows, StartingSnakeLength } from "../Constants";
+import { CellHeight, CellWidth, DebugOptions, GameColumns, GameRows, StartingSnakeLength, screenXOffset, screenYOffset } from "../Constants";
 import { areCoordinatesOutsideGrid, coordinateExistsInSet, getNextCoordinate, getPlayerStartCoordinates, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
 import { GameCoordinate } from "../Models";
 import { Directions } from "../Types";
@@ -55,7 +55,7 @@ export class Game extends React.Component<{}, State> {
         document.addEventListener("keyup", this.onKeyUp);
 
         if (!DebugOptions.manualMovement) {
-            this.gameTickTimer = window.setInterval(this.gameTick, 200);
+            this.gameTickTimer = window.setInterval(this.gameTick, 150);
         }
     }
 
@@ -149,8 +149,8 @@ export class Game extends React.Component<{}, State> {
         const gameFieldStyle: CSSProperties = {
             position: "absolute",
             backgroundColor: "green",
-            left: 0,
-            top: 0,
+            left: screenXOffset,
+            top: screenYOffset,
             height: `${CellWidth * GameColumns}px`,
             width: `${CellHeight * GameRows}px`,
         };
@@ -162,6 +162,7 @@ export class Game extends React.Component<{}, State> {
             height: `${CellHeight}px`,
             left: this.state.fruitCoordinate.x * CellWidth,
             top: this.state.fruitCoordinate.y * CellHeight,
+            borderRadius: "50%"
         };
 
         const snakeStyle: CSSProperties = {
@@ -184,7 +185,13 @@ export class Game extends React.Component<{}, State> {
                             <div style={fruitStyle} />
                             {
                                 this.state.playerCoordinates.map((coordinate, key) =>
-                                    <div key={key} style={{ ...snakeStyle, left: coordinate.x * CellWidth, top: coordinate.y * CellHeight }} />
+                                    <div key={key} style={
+                                        {
+                                            ...snakeStyle,
+                                            left: coordinate.x * CellWidth,
+                                            top: coordinate.y * CellHeight,
+                                        }
+                                    } />
                                 )
                             }
                         </div>

@@ -40,12 +40,12 @@ export const CellHeight = 15;
 /**
  * Offset where to position cells on the X axis.
  */
-export const screenXOffset = (window.screen.availWidth / 2) - (CellWidth * PlayerStartCoordinateX);
+export const screenXOffset = (window.innerWidth / 2) - (CellWidth * PlayerStartCoordinateX);
 
 /**
  * Offset where to postion cells on the Y axis.
  */
-export const screenYOffset = (window.screen.availHeight / 2) - (CellHeight * PlayerStartCoordinateY);
+export const screenYOffset = (window.innerHeight / 2) - (CellHeight * PlayerStartCoordinateY);
 
 export const DebugOptions = {
     manualMovement: false,
