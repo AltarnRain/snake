@@ -2,65 +2,36 @@
  * Lib. Lots of helper functions.
  */
 
-import { GridColumns, GridRows, PlayerStartCoordinateX, PlayerStartCoordinateY, StartingSnakeLength } from "../Constants";
-import { GridCoordinate } from "../Models";
-import { Actors, Directions } from "../Types";
-
-/**
- * Creates the initial game grid.
- */
-export function getInitialGrid(): Actors[][] {
-    const grid: Actors[][] = [];
-
-    for (let row = 0; row < GridRows; row++) {
-        const rowActors: Actors[] = [];
-
-        for (let column = 0; column < GridColumns; column++) {
-            rowActors.push("background");
-        }
-
-        grid.push(rowActors);
-    }
-
-    return grid;
-}
-
-/**
- * Converts an actor to a color.
- * @returns {string}. A color
- */
-export function getActorColor(actor: Actors): string {
-    switch (actor) {
-        case "background":
-            return "green";
-        case "fruit":
-            return "red";
-        case "player":
-            return "yellow";
-    }
-}
+import { GameColumns, GameRows, PlayerStartCoordinateX, PlayerStartCoordinateY, StartingSnakeLength } from "../Constants";
+import { GameCoordinate } from "../Models";
+import { Directions } from "../Types";
 
 /**
  * Returns a random position on the grid.
  */
-export function getRandomGridCoordinates(): GridCoordinate {
-    const x = Math.ceil(Math.random() * (GridRows - 1));
-    const y = Math.ceil(Math.random() * (GridColumns - 1));
+export function getRandomGridCoordinates(exclude: GameCoordinate[]): GameCoordinate {
 
-    return {
-        x,
-        y
-    };
+    while (true) {
+        const x = Math.ceil(Math.random() * (GameRows - 1));
+        const y = Math.ceil(Math.random() * (GameColumns - 1));
+
+        const coordinate: GameCoordinate = { x, y };
+
+        // Ensure a fruit is never placed on a player.
+        if (!coordinateExistsInSet(exclude, coordinate)) {
+            return coordinate;
+        }
+    }
 }
 
 /**
  * Gets the grid coordinates where the player's body will be based on the initial snake length
- * @returns {GridCoordinate}. The player's initial grid coordinates.
+ * @returns {GameCoordinate}. The player's initial grid coordinates.
  */
-export function getPlayerStartCoordinate(): GridCoordinate[] {
-    const playerStartCoordinates: GridCoordinate[] = [ { x: PlayerStartCoordinateX, y: PlayerStartCoordinateY } ];
+export function getPlayerStartCoordinates(): GameCoordinate[] {
+    const playerStartCoordinates: GameCoordinate[] = [{ x: PlayerStartCoordinateX, y: PlayerStartCoordinateY }];
     for (let i = 1; i < StartingSnakeLength; i++) {
-        const lastCoordinate = {...playerStartCoordinates[i - 1]};
+        const lastCoordinate = { ...playerStartCoordinates[i - 1] };
         lastCoordinate.y++;
         playerStartCoordinates.push(lastCoordinate);
     }
@@ -87,9 +58,9 @@ export function keyCodeToDirection(keyCode: number): Directions {
 
 /**
  * Gets the next coordinate based on the passed direction
- * @returns {GridCoordinate}. A new grid coordinate
+ * @returns {GameCoordinate}. A new grid coordinate
  */
-export function getNextCoordinate(coordinate: GridCoordinate, direction: Directions): GridCoordinate {
+export function getNextCoordinate(coordinate: GameCoordinate, direction: Directions): GameCoordinate {
 
     const newCoordinate = { ...coordinate };
 
@@ -122,23 +93,23 @@ export function validNewDirection(currentDirection: Directions, newDirection: Di
 
 /**
  * Returns true of the passed coordinates are outside the bounds of the game grid.
- * @param {GridCoordinate} coordinates The coordinate to check
+ * @param {GameCoordinate} coordinates The coordinate to check
  * @returns {boolean}. True if the coordinats are outside the game grid.
  */
-export function areCoordinatesOutsideGrid(coordinate: GridCoordinate): boolean {
+export function areCoordinatesOutsideGrid(coordinate: GameCoordinate): boolean {
     return (coordinate.x < 0 ||
-        coordinate.x >= GridColumns ||
+        coordinate.x >= GameColumns ||
         coordinate.y < 0 ||
-        coordinate.y >= GridRows);
+        coordinate.y >= GameRows);
 }
 
 /**
  * Checks if coordinates overlap between two arrays of GridCoordinates
- * @param {GridCoordinate[]} coordinateSet. Set of coordinates.
- * @param {GridCoordinate} coordinates. The coordinate to check
+ * @param {GameCoordinate[]} coordinateSet. Set of coordinates.
+ * @param {GameCoordinate} coordinates. The coordinate to check
  */
-export function coordinateExistsInSet(coordinates: GridCoordinate[], coordinate: GridCoordinate): boolean {
-    return  coordinates.some((coords) => coords.x === coordinate.x && coords.y === coordinate.y);
+export function coordinateExistsInSet(coordinates: GameCoordinate[], coordinate: GameCoordinate): boolean {
+    return coordinates.some((coords) => coords.x === coordinate.x && coords.y === coordinate.y);
 }
 
 /**

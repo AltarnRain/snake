@@ -2,15 +2,14 @@
  * The grid component.
  */
 
-import React from "react";
-import { DebugOptions, StartingSnakeLength } from "../Constants";
-import { areCoordinatesOutsideGrid, coordinateExistsInSet, getInitialGrid, getNextCoordinate, getPlayerStartCoordinate, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
-import { GridCoordinate } from "../Models";
-import { Row } from "../Row/Row";
+import React, { CSSProperties } from "react";
+import { CellHeight, CellWidth, DebugOptions, GameColumns, GameRows, StartingSnakeLength } from "../Constants";
+import { areCoordinatesOutsideGrid, coordinateExistsInSet, getNextCoordinate, getPlayerStartCoordinates, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
+import { GameCoordinate } from "../Models";
 import { Directions } from "../Types";
 import { State } from "./State";
 
-export class Grid extends React.Component<{}, State> {
+export class Game extends React.Component<{}, State> {
 
     /**
      * Reference number to the interval.
@@ -23,37 +22,23 @@ export class Grid extends React.Component<{}, State> {
     private direction: Directions = "up";
 
     /**
-     * The current player coordinates
-     */
-    private playerCoordinates: GridCoordinate[] = getPlayerStartCoordinate();
-
-    /**
-     * The coordinates of the fruit.
-     */
-    private fruitCoordinates: GridCoordinate = getRandomGridCoordinates();
-
-    /**
      * Constructs the component.
      */
     constructor(props: object) {
         super(props);
 
-        const gridActors = getInitialGrid();
-        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "player");
-        gridActors[this.fruitCoordinates.x][this.fruitCoordinates.y] = "fruit";
+        const playerCoordinates = getPlayerStartCoordinates();
+        const fruitCoordinate = getRandomGridCoordinates(playerCoordinates);
 
         this.state = {
-            gridActors,
+            playerCoordinates,
+            fruitCoordinate,
             snakeLength: StartingSnakeLength,
             gameLost: false,
         };
 
         this.onKeyUp = this.onKeyUp.bind(this);
         this.gameTick = this.gameTick.bind(this);
-    }
-
-    private setNewFruitPosition(): void {
-        this.fruitCoordinates = getRandomGridCoordinates();
     }
 
     /**
@@ -81,48 +66,44 @@ export class Grid extends React.Component<{}, State> {
     /**
      * Main game loop
      */
-    private gameTick(): void {
+    private gameTick(callback?: () => void): void {
 
         // Stop the game from updating if the player lost the game.
         if (this.state.gameLost) {
             return;
         }
 
-        const gridActors = [...this.state.gridActors];
-
-        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "background");
-
-        const newPlayerCoordinate = getNextCoordinate(this.playerCoordinates[0], this.direction);
+        const newPlayerCoordinate = getNextCoordinate(this.state.playerCoordinates[0], this.direction);
 
         if (areCoordinatesOutsideGrid(newPlayerCoordinate)) {
             this.setState({ gameLost: true, gameLostMessage: "You went outside the play field." });
             return;
         }
 
-        if (coordinateExistsInSet(this.playerCoordinates, newPlayerCoordinate)) {
+        if (coordinateExistsInSet(this.state.playerCoordinates, newPlayerCoordinate)) {
             this.setState({ gameLost: true, gameLostMessage: "You hit your tail." });
             return;
         }
 
         let snakeLength = this.state.snakeLength;
-        if (gridActors[newPlayerCoordinate.x][newPlayerCoordinate.y] === "fruit") {
+        let fruitCoordinate = this.state.fruitCoordinate;
+
+        let playerCoordinates: GameCoordinate[] = [...this.state.playerCoordinates];
+        if (this.state.fruitCoordinate.x === newPlayerCoordinate.x &&
+            this.state.fruitCoordinate.y === newPlayerCoordinate.y) {
+
             snakeLength++;
 
-            gridActors[this.fruitCoordinates.x][this.fruitCoordinates.y] = "background";
-            this.setNewFruitPosition();
-            gridActors[this.fruitCoordinates.x][this.fruitCoordinates.y] = "fruit";
-
-            this.playerCoordinates = [newPlayerCoordinate, ...this.playerCoordinates];
+            playerCoordinates = [newPlayerCoordinate, ...this.state.playerCoordinates];
+            fruitCoordinate = getRandomGridCoordinates(playerCoordinates);
 
         } else {
             // Remove last element
-            this.playerCoordinates.pop();
+            playerCoordinates.pop();
 
-            this.playerCoordinates = [newPlayerCoordinate, ...this.playerCoordinates];
+            playerCoordinates = [newPlayerCoordinate, ...playerCoordinates];
         }
-
-        this.playerCoordinates.forEach((coord) => gridActors[coord.x][coord.y] = "player");
-        this.setState({ gridActors, snakeLength });
+        this.setState({ playerCoordinates, snakeLength, fruitCoordinate }, callback);
     }
 
     /**
@@ -147,6 +128,32 @@ export class Grid extends React.Component<{}, State> {
      * @returns {ReactNode}.
      */
     public render(): React.ReactNode {
+
+        const gameFieldStyle: CSSProperties = {
+            position: "absolute",
+            backgroundColor: "green",
+            left: 0,
+            top: 0,
+            height: `${CellWidth * GameColumns}px`,
+            width: `${CellHeight * GameRows}px`,
+        };
+
+        const fruitStyle: CSSProperties = {
+            position: "absolute",
+            backgroundColor: "red",
+            width: `${CellWidth}px`,
+            height: `${CellHeight}px`,
+            left: this.state.fruitCoordinate.x * CellWidth,
+            top: this.state.fruitCoordinate.y * CellHeight,
+        };
+
+        const snakeStyle: CSSProperties = {
+            position: "absolute",
+            backgroundColor: "yellow",
+            width: `${CellWidth}px`,
+            height: `${CellHeight}px`,
+        };
+
         return (
             <>
                 {
@@ -155,7 +162,15 @@ export class Grid extends React.Component<{}, State> {
                             <p>{this.state.gameLostMessage}</p>
                             <p>The length of the snake was: {this.state.snakeLength.toString()}</p>
                         </>
-                        : this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
+                        :
+                        <div style={gameFieldStyle}>
+                            <div style={fruitStyle} />
+                            {
+                                this.state.playerCoordinates.map((coordinate, key) =>
+                                    <div key={key} style={{ ...snakeStyle, left: coordinate.x * CellWidth, top: coordinate.y * CellHeight }} />
+                                )
+                            }
+                        </div>
                 }
             </>
         );

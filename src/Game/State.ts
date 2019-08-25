@@ -1,14 +1,9 @@
 /**
  * Grid state
  */
-import { Actors } from "../Types";
+import { GameCoordinate } from "../Models";
 
 export interface State {
-
-    /**
-     * Actors in the grid
-     */
-    gridActors: Actors[][];
 
     /**
      * The length of the snake
@@ -24,4 +19,14 @@ export interface State {
      * The reason the player lost the game.
      */
     gameLostMessage?: string;
+
+    /**
+     * The current player coordinates
+     */
+    playerCoordinates: GameCoordinate[];
+
+    /**
+     * The coordinates of the fruit.
+     */
+    fruitCoordinate: GameCoordinate;
 }

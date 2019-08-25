@@ -6,7 +6,7 @@
 /**
  * Model used to pass coordinates.
  */
-export interface GridCoordinate {
+export interface GameCoordinate {
     /**
      * x coordinate
      */

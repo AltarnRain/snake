@@ -3,9 +3,9 @@
  */
 
 import "jest";
-import { GridColumns, GridRows } from "../Constants";
-import { coordinateExistsInSet, getActorColor, getNextCoordinate, getPlayerStartCoordinate, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
-import { GridCoordinate } from "../Models";
+import { GameColumns, GameRows } from "../Constants";
+import { coordinateExistsInSet, getActorColor, getNextCoordinate, getPlayerStartCoordinates, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
+import { GameCoordinate } from "../Models";
 import { Directions } from "../Types";
 
 describe("Test lib functions", () => {
@@ -28,17 +28,17 @@ describe("Test lib functions", () => {
         // Assert
         expect(coordinates.x).toBeGreaterThanOrEqual(0);
         expect(coordinates.y).toBeGreaterThanOrEqual(-1);
-        expect(coordinates.x).toBeLessThanOrEqual(GridRows);
-        expect(coordinates.y).toBeLessThanOrEqual(GridColumns);
+        expect(coordinates.x).toBeLessThanOrEqual(GameRows);
+        expect(coordinates.y).toBeLessThanOrEqual(GameColumns);
     });
 
     it("returns the snake''s start position", () => {
         // Act
-        const playerStartCoordinates = getPlayerStartCoordinate();
+        const playerStartCoordinates = getPlayerStartCoordinates();
 
         // Assert
-        expect(playerStartCoordinates[0].x).toBe(Math.ceil(GridRows / 2));
-        expect(playerStartCoordinates[0].y).toBe(Math.ceil(GridColumns / 2));
+        expect(playerStartCoordinates[0].x).toBe(Math.ceil(GameRows / 2));
+        expect(playerStartCoordinates[0].y).toBe(Math.ceil(GameColumns / 2));
 
         const headCoordiantes = playerStartCoordinates[0];
         expect(playerStartCoordinates[1].x).toBe(headCoordiantes.x);
@@ -66,7 +66,7 @@ describe("Test lib functions", () => {
 
     it("returns the next coordinate depending on the passed direction", () => {
         // Arrange
-        const coordinates: GridCoordinate = { x: 10, y: 10 };
+        const coordinates: GameCoordinate = { x: 10, y: 10 };
 
         // Act
         const left = getNextCoordinate(coordinates, "left");
@@ -109,7 +109,7 @@ describe("Test lib functions", () => {
 
     it("can find an overlapping set of coordinate", () => {
         // Arrange
-        const coordinateSet: GridCoordinate[] = [
+        const coordinateSet: GameCoordinate[] = [
             { x: 25, y: 25},
             { x: 26, y: 26},
             { x: 27, y: 27},
