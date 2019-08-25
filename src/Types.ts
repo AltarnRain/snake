@@ -1,4 +1,4 @@
 /**
- * Directions.
+ * Direction.
  */
-export type Directions = "up" | "right" | "down" | "left" | undefined;
+export type Direction = "up" | "right" | "down" | "left" | undefined;
