@@ -17,9 +17,16 @@ export class Game extends React.Component<{}, State> {
     private gameTickTimer: number | undefined;
 
     /**
-     * The direction the player is traveling in.
+     * The direction the snake is traveling in. This is never updated directly by a keypress.
+     * It is set in the GameTick method when the newDirection is valid.
+     * It is also used to move the snake when no keypress was pending.
      */
-    private direction: Directions = "up";
+    private currentDirection: Directions = "up";
+
+    /**
+     * The direction given my player input.
+     */
+    private newDirection?: Directions;
 
     /**
      * Constructs the component.
@@ -73,15 +80,19 @@ export class Game extends React.Component<{}, State> {
             return;
         }
 
-        const newPlayerCoordinate = getNextCoordinate(this.state.playerCoordinates[0], this.direction);
+        if (typeof this.newDirection !== "undefined" && validNewDirection(this.newDirection, this.currentDirection)) {
+            // The new direction is valid comparied to the current one. Update this.currentDirection to set
+            // the new direction of travel.
+            this.currentDirection = this.newDirection;
+
+            // Clear this.newDirection to indicate no move is pending.
+            this.newDirection = undefined;
+        }
+
+        const newPlayerCoordinate = getNextCoordinate(this.state.playerCoordinates[0], this.currentDirection);
 
         if (areCoordinatesOutsideGrid(newPlayerCoordinate)) {
             this.setState({ gameLost: true, gameLostMessage: "You went outside the play field." });
-            return;
-        }
-
-        if (coordinateExistsInSet(this.state.playerCoordinates, newPlayerCoordinate)) {
-            this.setState({ gameLost: true, gameLostMessage: "You hit your tail." });
             return;
         }
 
@@ -93,16 +104,22 @@ export class Game extends React.Component<{}, State> {
             this.state.fruitCoordinate.y === newPlayerCoordinate.y) {
 
             snakeLength++;
-
-            playerCoordinates = [newPlayerCoordinate, ...this.state.playerCoordinates];
             fruitCoordinate = getRandomGridCoordinates(playerCoordinates);
-
         } else {
             // Remove last element
             playerCoordinates.pop();
-
-            playerCoordinates = [newPlayerCoordinate, ...playerCoordinates];
         }
+
+        // It is possible from length 5 or bigger to hit your tail, not before.
+        if (snakeLength > 4) {
+            if (coordinateExistsInSet(playerCoordinates, newPlayerCoordinate)) {
+                this.setState({ gameLost: true, gameLostMessage: "You hit your tail." });
+                return;
+            }
+        }
+
+        playerCoordinates = [newPlayerCoordinate, ...playerCoordinates];
+
         this.setState({ playerCoordinates, snakeLength, fruitCoordinate }, callback);
     }
 
@@ -113,13 +130,13 @@ export class Game extends React.Component<{}, State> {
     private onKeyUp(e: KeyboardEvent): void {
         if (e) {
             const direction = keyCodeToDirection(e.keyCode);
-            if (typeof direction !== "undefined" && validNewDirection(direction, this.direction)) {
-                this.direction = direction;
 
-                if (DebugOptions.manualMovement) {
-                    this.gameTick();
-                }
+            this.newDirection = direction;
+
+            if (DebugOptions.manualMovement) {
+                this.gameTick();
             }
+
         }
     }
 
