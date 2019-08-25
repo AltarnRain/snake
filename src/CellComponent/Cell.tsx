@@ -3,23 +3,21 @@
  */
 
 import React, { CSSProperties } from "react";
+import { cellHeight, cellWidth, screenXOffset, screenYOffset } from "../Constants";
 import { getActorColor } from "../Lib/Lib";
 import { Properties } from "./Properties";
 
 export const Cell: React.FC<Properties> = (props) => {
-
-    const width  = 15;
-    const height = 15;
 
     /**
      * The cell style
      */
     const cellStyle: CSSProperties = {
         backgroundColor: getActorColor(props.actor),
-        width: `${width}px`,
-        height: `${height}px`,
-        left: props.row * width,
-        top: props.column * height,
+        width: `${cellWidth}px`,
+        height: `${cellHeight}px`,
+        left: (props.row * cellWidth) + screenXOffset,
+        top: (props.column * cellHeight) + screenYOffset,
         position: "absolute",
     };
 

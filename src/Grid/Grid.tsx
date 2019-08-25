@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { StartingSnakeLength } from "../Constants";
+import { DebugOptions, StartingSnakeLength } from "../Constants";
 import { areCoordinatesOutsideGrid, coordinateExistsInSet, getInitialGrid, getNextCoordinate, getPlayerStartCoordinate, getRandomGridCoordinates, keyCodeToDirection, validNewDirection } from "../Lib/Lib";
 import { GridCoordinate } from "../Models";
 import { Row } from "../Row/Row";
@@ -62,7 +62,9 @@ export class Grid extends React.Component<{}, State> {
     public componentDidMount(): void {
         document.addEventListener("keyup", this.onKeyUp);
 
-        this.gameTickTimer = window.setInterval(this.gameTick, 200);
+        if (!DebugOptions.manualMovement) {
+            this.gameTickTimer = window.setInterval(this.gameTick, 200);
+        }
     }
 
     /**
@@ -71,7 +73,9 @@ export class Grid extends React.Component<{}, State> {
     public componentWillUnmount(): void {
         document.removeEventListener("keyup", this.onKeyUp);
 
-        window.clearInterval(this.gameTickTimer);
+        if (typeof this.gameTickTimer !== "undefined") {
+            window.clearInterval(this.gameTickTimer);
+        }
     }
 
     /**
@@ -97,6 +101,7 @@ export class Grid extends React.Component<{}, State> {
 
         if (coordinateExistsInSet(this.playerCoordinates, newPlayerCoordinate)) {
             this.setState({ gameLost: true, gameLostMessage: "You hit your tail." });
+            return;
         }
 
         let snakeLength = this.state.snakeLength;
@@ -127,8 +132,12 @@ export class Grid extends React.Component<{}, State> {
     private onKeyUp(e: KeyboardEvent): void {
         if (e) {
             const direction = keyCodeToDirection(e.keyCode);
-            if (validNewDirection(direction, this.direction)) {
+            if (typeof direction !== "undefined" && validNewDirection(direction, this.direction)) {
                 this.direction = direction;
+
+                if (DebugOptions.manualMovement) {
+                    this.gameTick();
+                }
             }
         }
     }
@@ -142,13 +151,11 @@ export class Grid extends React.Component<{}, State> {
             <>
                 {
                     this.state.gameLost ?
-                    <>
-                        <p>{this.state.gameLostMessage}</p>
-                        <p>The length of the snake was: {this.state.snakeLength.toString()}</p>
-                    </>
-                             :
-
-                        this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
+                        <>
+                            <p>{this.state.gameLostMessage}</p>
+                            <p>The length of the snake was: {this.state.snakeLength.toString()}</p>
+                        </>
+                        : this.state.gridActors.map((rowActors, index) => <Row key={index} row={index} actors={rowActors} />)
                 }
             </>
         );
