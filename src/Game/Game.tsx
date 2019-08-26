@@ -145,7 +145,7 @@ export class Game extends React.Component<{}, State> {
     }
 
     /**
-     * Stars a new game
+     * Restarts a game.
      */
     private playAgain(): void {
         this.setState(this.getInitialState());
