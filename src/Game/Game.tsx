@@ -80,10 +80,13 @@ export class Game extends React.Component<{}, State> {
      */
     private gameTick(callback?: () => void): void {
 
-        // Stop the game from updating if the player lost the game.
         if (this.state.gameLost) {
+            window.clearInterval(this.gameTickTimer);
             return;
         }
+
+        let gameLost = false;
+        let gameLostMessage = "";
 
         if (typeof this.newDirection !== "undefined" && validNewDirection(this.newDirection, this.currentDirection)) {
             // The new direction is valid comparied to the current one. Update this.currentDirection to set
@@ -97,8 +100,7 @@ export class Game extends React.Component<{}, State> {
         const newPlayerCoordinate = getNextCoordinate(this.state.playerCoordinates[0], this.currentDirection);
 
         if (areCoordinatesOutsideGrid(newPlayerCoordinate)) {
-            this.setState({ gameLost: true, gameLostMessage: "You went outside the play field." });
-            return;
+            gameLost = true;
         }
 
         let snakeLength = this.state.snakeLength;
@@ -116,16 +118,13 @@ export class Game extends React.Component<{}, State> {
         }
 
         // It is possible from length 5 or bigger to hit your tail, not before.
-        if (snakeLength > 4) {
-            if (coordinateExistsInSet(playerCoordinates, newPlayerCoordinate)) {
-                this.setState({ gameLost: true, gameLostMessage: "You hit your tail." });
-                return;
-            }
+        if (coordinateExistsInSet(playerCoordinates, newPlayerCoordinate)) {
+            gameLost = true;
         }
 
         playerCoordinates = [newPlayerCoordinate, ...playerCoordinates];
 
-        this.setState({ playerCoordinates, snakeLength, fruitCoordinate }, callback);
+        this.setState({ playerCoordinates, snakeLength, fruitCoordinate, gameLost, gameLostMessage }, callback);
     }
 
     /**
@@ -149,6 +148,7 @@ export class Game extends React.Component<{}, State> {
      */
     private playAgain(): void {
         this.setState(this.getInitialState());
+        this.gameTickTimer = window.setInterval(this.gameTick, TimeTick);
     }
 
     /**
@@ -198,7 +198,7 @@ export class Game extends React.Component<{}, State> {
                 <p style={{ ...scoreStype, top: screenYOffset + 30 }}>Fruits: {this.state.snakeLength - StartingSnakeLength}</p>
                 {
                     this.state.gameLost ?
-                        <button style={{ position: "absolute", top: screenYOffset + 70, left: screenXOffset - 100 }} onClick={this.playAgain}>Play again?</button>
+                            <button style={{ position: "absolute", top: screenYOffset + 70, left: screenXOffset - 100 }} onClick={this.playAgain}>Play again?</button>
                         : null
                 }
                 <div style={gameFieldStyle}>

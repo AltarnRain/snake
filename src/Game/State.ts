@@ -16,11 +16,6 @@ export interface State {
     gameLost: boolean;
 
     /**
-     * The reason the player lost the game.
-     */
-    gameLostMessage?: string;
-
-    /**
      * The current player coordinates
      */
     playerCoordinates: GameCoordinate[];
